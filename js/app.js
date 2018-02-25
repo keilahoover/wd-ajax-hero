@@ -4,20 +4,22 @@
   const movies = [];
 
   const renderMovies = function() {
+    console.log('hello')
     $('#listings').empty();
 
     for (const movie of movies) {
+      console.log(movie)
       const $col = $('<div>').addClass('col s6');
       const $card = $('<div>').addClass('card hoverable');
       const $content = $('<div>').addClass('card-content center');
       const $title = $('<h6>').addClass('card-title truncate');
-
       $title.attr({
         'data-position': 'top',
         'data-tooltip': movie.title
       });
 
       $title.tooltip({ delay: 50 }).text(movie.title);
+
 
       const $poster = $('<img>').addClass('poster');
 
@@ -56,5 +58,26 @@
     }
   };
 
-  // ADD YOUR CODE HERE
+  let searchInput = $('#search');
+  let searchBtn = $('button');
+  let $xhr;
+
+  searchBtn.on('click', function (e) {
+    e.preventDefault();
+    if (searchInput.val().trim() === '') {
+      alert('Please, use a valid search keyword')
+    } else {
+        $xhr = $.getJSON('https://omdb-api.now.sh/?s=' + searchInput.val());
+        $xhr.done(function (data) {
+          if ($xhr.status !== 200) {
+            return;
+          }
+          for(let i = 0; i < data.Search.length; i++) {
+            movies.push({'id':data.Search[i].imdbID, 'poster':data.Search[i].Poster, 'title':data.Search[i].Title, 'year':data.Search[i].Year});
+          }
+          renderMovies();
+        });
+      }
+    searchInput.val('')
+  })
 })();
